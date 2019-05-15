@@ -8,6 +8,8 @@ spec:
  type: NodePort
  ports:
  - port: 8080
-   nodePort: 30001
+   nodePort: 30080
+   targetPort: 8080
  selector:
    app: sample
+   

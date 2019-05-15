@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: sample
-        image: sample/minikube:v0.0.1
+        image: sample/minikube:v1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
