@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: cowsay-dag-
+spec:
+  entrypoint: whalesay-dag
+
+  templates:
+  - name: whalesay-dag
+    dag:
+      tasks:
+      - name: whalesay-dag1
+        template: whalesay
+        arguments:
+          parameters: [{name: data, value: A}]
+      - name: whalesay-dag2
+        dependencies: [whalesay-dag1]    # whalesay_dag1の実行終了後whalesay_dag2が実行される
+        template: whalesay
+        arguments:
+          parameters: [{name: data, value: B}]
+      - name: whalesay-dag3
+        dependencies: [whalesay-dag1]    # whalesay_dag1の実行終了後whalesay_dag3が実行される
+        template: whalesay
+        arguments:
+          parameters: [{name: data, value: C}]
+      - name: whalesay-dag4
+        dependencies: [whalesay-dag2, whalesay-dag3]  # whalesay_dag2，whalesay_dag3の実行終了後whalesay_dag4が実行される
+        template: whalesay
+        arguments:
+          parameters: [{name: data, value: D}]
+
+  - name: whalesay
+    inputs:
+      parameters:
+      - name: data
+    container:
+      image: docker/whalesay:latest
+      command: [cowsay]
+      args: ["{{inputs.parameters.data}}"]

@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: cowsay-cron-
+spec:
+  entrypoint: whalesay
+  templates:
+  - name: whalesay
+    container:
+      image: docker/whalesay:latest
+      command: [cowsay]
+      args: ["Hey world"]
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cron-wf
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: exec-workflow
+              image: argoproj/argocli:latest
+              command: ["argo","submit"]
+              args: ["/argo-wf/wf-manifest"]
+              volumeMounts:
+                - name: wf-manifest
+                  mountPath: /argo-wf/
+          volumes:
+            - name: wf-manifest
+              configMap:
+                name: manifest-cm

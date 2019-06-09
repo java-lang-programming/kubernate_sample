@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: cowsay-parallel-
+spec:
+  entrypoint: whalesay-parallel
+
+  templates:
+  - name: whalesay-parallel
+    steps:    # Stepsで実行することを明記
+      - - name: whalesay1a
+          template: whalesay      # このstepに到達すると，template.whalesayが実行されます
+          arguments:
+            parameters:
+            - name: data
+              value: "1"
+        - name: whalesay1b
+          template: whalesay
+          arguments:
+            parameters:
+            - name: data
+              value: "2"
+        - name: whalesay1c
+          template: whalesay
+          arguments:
+            parameters:
+            - name: data
+              value: "3"
+
+  - name: whalesay
+    inputs:
+      parameters:
+      - name: data
+    container:
+      image: docker/whalesay:latest
+      command: [cowsay]
+      args: ["{{inputs.parameters.data}}"]
